@@ -1,0 +1,17 @@
+# node.js
+#
+node_modules/
+dist/
+.vscode/
+npm-debug.log
+yarn.lock
+yarn-error.log
+
+# build
+#
+#dist/
+
+
+# OSX
+#
+.DS_Store

@@ -1,0 +1,22 @@
+{
+    "name": "落音",
+    "describe": "Web Audio 来一起处理声音信号",
+    "action": [{
+        "type": "label",
+        "name": "aaaa",
+        "answer": "来啊造作啊",
+        "question": "web audio 是什么"
+
+    },
+    {
+        "type": "component",
+        "name": "voiceShow",
+        "answer": "",
+        "question": "我说一段话你能知道我说了什么吗"
+    },
+    {
+        "type": "component",
+        "name": "voiceBall",
+        "describe": "22222"
+    }]
+}
