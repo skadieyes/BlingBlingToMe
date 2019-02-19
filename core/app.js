@@ -9,6 +9,15 @@ import Meta from 'vue-meta';
 import {createRouter} from '@/.lavas/router';
 import {createStore} from '@/.lavas/store';
 import AppComponent from './App.vue';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faCoffee, faCircle } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+library.add(faCoffee, faCircle)
+
+Vue.component('font-awesome-icon', FontAwesomeIcon)
+
+Vue.config.productionTip = false
 
 Vue.use(Meta);
 

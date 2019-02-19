@@ -4,9 +4,16 @@
       <span class="chat-window-head-back" v-on:click="goBack()">Back</span>
       <span class="chat-window-head-name">{{name}}</span>
     </div>
-    <div class="chat-window-content"></div>
+    <div class="chat-window-content">
+      <div class="chat-window-content-bubble chat-window-content-bubble-right">
+        <chat-bubble :direction="'right'">111</chat-bubble>
+      </div>
+      <div class="chat-window-content-bubble chat-window-content-bubble-left">
+        <chat-bubble :direction="'left'">222</chat-bubble>
+      </div>
+    </div>
     <div class="chat-window-handle">
-      <div class="chat-window-handle-fun">+</div>
+      <div class="chat-window-handle-fun" v-on:click="creatAudio()">+</div>
       <span class="chat-window-handle-circle-left"></span>
       <div class="chat-window-handle-input">
         <input>
@@ -18,22 +25,28 @@
 </template>
 
 <script>
+import ChatBubble from "@/components/Chat/ChatBubble";
+
 export default {
   name: "chat-window",
+  components: { ChatBubble },
   computed: {},
   data() {
     return {
       name: "聊天窗",
       api: [], // 获取当前聊天窗数据的接口
-      name: '', // 和你聊天的人
-      describe: '', // 描述
+      name: "", // 和你聊天的人
+      describe: "", // 描述
       action: [], // 这个人的若干行为
+      direction: "left", // 方向
+      audioCtx: null, // 音频环境
+      AudioBufferSourceNode: null
     };
   },
   created() {
     const { api } = this.$router.history.current.query;
     this.api = api;
-    this.getContent()
+    this.getContent();
   },
   methods: {
     goBack() {
@@ -43,14 +56,21 @@ export default {
       this.$http
         .get(`/static/db/${this.api}.json`)
         .then(({ body }) => {
-          const { name, describe, action } = body
-          this.name = name
-          this.describe = describe
-          this.action = action
+          const { name, describe, action } = body;
+          this.name = name;
+          this.describe = describe;
+          this.action = action;
         })
         .catch(error => {
           console.log(error);
         });
+    },
+    creatAudio() {
+      this.audioCtx = new AudioContext();
+      this.AudioBufferSourceNode = this.audioCtx.createBufferSource();
+      this.audioCtx.resume().then(() => {
+        console.log("Playback resumed successfully");
+      });
     }
   }
 };
@@ -92,6 +112,18 @@ export default {
     background-color: #fff1f0;
     padding: 1rem 0;
     overflow-y: auto;
+
+    &-bubble {
+      padding: 0 1rem 1rem;
+    }
+
+    &-bubble-right {
+      text-align: right;
+    }
+
+    &-bubble-left {
+      text-align: left;
+    }
   }
 
   &-handle {
