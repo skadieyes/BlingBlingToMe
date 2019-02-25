@@ -6,17 +6,20 @@
     </div>
     <div class="chat-window-content">
       <div class="chat-window-content-bubble chat-window-content-bubble-right">
-        <chat-bubble :direction="'right'">111</chat-bubble>
+        <chat-bubble :direction="'right'">你想获得真正的力量吗</chat-bubble>
       </div>
       <div class="chat-window-content-bubble chat-window-content-bubble-left">
-        <chat-bubble :direction="'left'">222</chat-bubble>
+        <chat-bubble :direction="'left'">来选一首歌吧</chat-bubble>
+      </div>
+      <div class="chat-window-content-bubble chat-window-content-bubble-right">
+        <chat-bubble :direction="'left'"><div id="smile-face"></div></chat-bubble>
       </div>
     </div>
     <div class="chat-window-handle">
-      <div class="chat-window-handle-fun" v-on:click="creatAudio()">+</div>
+      <div class="chat-window-handle-fun" v-on:click="playAudioBuffer()">+</div>
       <span class="chat-window-handle-circle-left"></span>
       <div class="chat-window-handle-input">
-        <input>
+        <input id="loadfile" type="file" v-on:change="getAudioFile">
       </div>
       <span class="chat-window-handle-circle-right"></span>
       <span class="chat-window-handle-send">></span>
@@ -40,17 +43,25 @@ export default {
       action: [], // 这个人的若干行为
       direction: "left", // 方向
       audioCtx: null, // 音频环境
-      AudioBufferSourceNode: null
+      AudioBufferSourceNode: null,
+      document: null, // 上传的音频文件
+      buffer: null, // ArrayBuffer类型的音频数据
+      analyserNode: null, // 音频可视化节点
+      analyserData: null // 音频可视化数据
     };
   },
   created() {
     const { api } = this.$router.history.current.query;
     this.api = api;
     this.getContent();
+    this.creatAudio();
   },
   methods: {
     goBack() {
       this.$router.push("/chat-list");
+    },
+    drawSmileFace(){
+        var faceCanvas = document.getElementById('smile-face');
     },
     getContent() {
       this.$http
@@ -71,6 +82,49 @@ export default {
       this.audioCtx.resume().then(() => {
         console.log("Playback resumed successfully");
       });
+    },
+    // 获取音频文件
+    getAudioFile(e) {
+      const { files } = e.target;
+      const file = files[0];
+      this.decodeAudioToGetBuffer(file);
+    },
+    // 解码音频冰获取ArrayBuffer类型的数据
+    decodeAudioToGetBuffer(file) {
+      const fr = new FileReader();
+      fr.onload = e => {
+        this.audioCtx.decodeAudioData(
+          e.target.result,
+          buffer => {
+            this.buffer = buffer;
+          },
+          function(err) {
+            console.log(err);
+          }
+        );
+      };
+      fr.readAsArrayBuffer(file);
+    },
+    // 初始化音频可视化相关配置
+    initAnalyserNode() {
+      this.analyserNode = this.audioCtx.createAnalyser();
+      this.analyserData = new Uint8Array(this.analyserNode.frequencyBinCount);
+    },
+    // 开始进行音频数据分析
+    getAnalyser() {
+      this.analyserNode.getByteFrequencyData(this.analyserData); // 将音频频域数据复制到传入的Uint8Array数组
+      console.log(this.analyserData);
+      requestAnimationFrame(this.getAnalyser);
+    },
+    // 播放音频数据
+    playAudioBuffer() {
+      this.initAnalyserNode();
+      this.getAnalyser();
+      this.AudioBufferSourceNode.buffer = this.buffer; // AudioBuffer数据赋值给buffer属性
+      this.AudioBufferSourceNode.connect(this.audioCtx.destination); // 如果只是播放音频，这边就直接将AudioBufferSourceNode连接到AudioDestinationNode
+      this.AudioBufferSourceNode.connect(this.analyserNode); // 实现播放后，需要将bufferSourceNode连接到AnalyserNode，才能通过AnalyserNode获取后面可视化所需的数据
+      this.AudioBufferSourceNode.loop = true; // 循环播放，默认为false
+      this.AudioBufferSourceNode.start(0); // 开始播放音频
     }
   }
 };
