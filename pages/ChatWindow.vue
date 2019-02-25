@@ -12,7 +12,9 @@
         <chat-bubble :direction="'left'">来选一首歌吧</chat-bubble>
       </div>
       <div class="chat-window-content-bubble chat-window-content-bubble-right">
-        <chat-bubble :direction="'left'"><div id="smile-face"></div></chat-bubble>
+        <chat-bubble :direction="'left'">
+          <canvas id="smile-face" ref="smile_face"></canvas>
+        </chat-bubble>
       </div>
     </div>
     <div class="chat-window-handle">
@@ -47,7 +49,8 @@ export default {
       document: null, // 上传的音频文件
       buffer: null, // ArrayBuffer类型的音频数据
       analyserNode: null, // 音频可视化节点
-      analyserData: null // 音频可视化数据
+      analyserData: null, // 音频可视化数据
+      ctx: null // 画布对象
     };
   },
   created() {
@@ -56,12 +59,32 @@ export default {
     this.getContent();
     this.creatAudio();
   },
+  mounted() {
+    this.initCanvas();
+    this.drawSmileFace();
+  },
   methods: {
     goBack() {
       this.$router.push("/chat-list");
     },
-    drawSmileFace(){
-        var faceCanvas = document.getElementById('smile-face');
+    drawSmileFace() {
+      if(!this.ctx) return;
+      this.ctx.beginPath();
+      this.ctx.arc(75, 75, 50, 0, Math.PI * 2, true); // 绘制
+      this.ctx.moveTo(110, 75);
+      this.ctx.arc(75, 75, 35, 0, Math.PI, false); // 口(顺时针)
+      this.ctx.moveTo(65, 65);
+      this.ctx.arc(60, 65, 5, 0, Math.PI * 2, true); // 左眼
+      this.ctx.moveTo(95, 65);
+      this.ctx.arc(90, 65, 5, 0, Math.PI * 2, true); // 右眼
+      this.ctx.stroke();
+    },
+    initCanvas() {
+      const element = this.$refs.smile_face;
+      console.log(element.getContext);
+      if(!element.getContext) return;
+      this.ctx = element.getContext("2d");
+      console.log(this.ctx);
     },
     getContent() {
       this.$http
