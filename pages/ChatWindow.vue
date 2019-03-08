@@ -51,12 +51,13 @@ export default {
       analyserNode: null, // 音频可视化节点
       analyserData: null, // 音频可视化数据
       ctx: null, // 画布对象
-      ctxWidth: 200,
-      ctxHeight: 150,
-      size: 160,
+      ctxWidth: 400,
+      ctxHeight: 400,
+      size: 60,
       arcX: 60,
       arcY: 60,
-      arcR: 60
+      arcR: 60,
+      offSet: 100
     };
   },
   created() {
@@ -68,6 +69,7 @@ export default {
   mounted() {
     this.initCanvas();
     this.drawLine();
+    this.drawSmileFace();
     console.log(this.getPoints());
   },
   methods: {
@@ -77,7 +79,7 @@ export default {
     // 获取圆上的所有点
     getPoints() {
       const points = [];
-      for (let i = 0; i < this.size / 2; i = i + 1) {
+      for (let i = 0; i <= this.size / 2; i = i + 1) {
         const x = i * 2 * ((2 * this.arcR) / this.size);
         const y1 = (
           this.arcY -
@@ -89,27 +91,26 @@ export default {
         ).toFixed(2);
         const arc1 = Math.asin(x * (Math.sin(90) / this.arcR));
         const arc2 = Math.asin(x * (Math.sin(90) / this.arcR));
-        console.log(arc);
         points.push({ x, y: y1 }, { x, y: y2 });
       }
       return points;
     },
     // 获取线段终点
     getLineTo(angle, R) {
-      const lineToX = Math.sin(angle) * ( R /  Math.sin(90) );
-      const lineToY =  Math.sqrt(Math.pow(R, 2) - Math.pow(lineToX, 2));
+      const lineToX = Math.sin(angle) * (R / Math.sin(90));
+      const lineToY = Math.sqrt(Math.pow(R, 2) - Math.pow(lineToX, 2));
       return { lineToX, lineToY };
     },
-                                   drawSmileFace() {
+    drawSmileFace() {
       if (!this.ctx) return;
       this.ctx.beginPath();
-      this.ctx.arc(75, 75, 50, 0, Math.PI * 2, true); // 绘制
-      this.ctx.moveTo(110, 75);
-      this.ctx.arc(75, 75, 35, 0, Math.PI, false); // 口(顺时针)
-      this.ctx.moveTo(65, 65);
-      this.ctx.arc(60, 65, 5, 0, Math.PI * 2, true); // 左眼
-      this.ctx.moveTo(95, 65);
-      this.ctx.arc(90, 65, 5, 0, Math.PI * 2, true); // 右眼
+      this.ctx.arc(this.arcX + this.offSet, this.arcY + this.offSet, this.arcR, 0, Math.PI * 2, true); // 绘制
+      this.ctx.moveTo(2 * this.arcX + this.offSet - 15, this.arcX + this.offSet);
+      this.ctx.arc(this.arcR + this.offSet, this.arcR + this.offSet, this.arcR - 15, 0, Math.PI, false); // 口(顺时针)
+      this.ctx.moveTo(this.arcR + this.offSet -5, this.arcR + this.offSet - 15);
+      this.ctx.arc(this.arcR + this.offSet - 10, this.arcR + this.offSet - 15, 5, 0, Math.PI * 2, true); // 左眼
+      this.ctx.moveTo(this.arcR + this.offSet + 15, this.arcR + this.offSet -15);
+      this.ctx.arc(this.arcR + this.offSet + 10,  this.arcR + this.offSet - 15, 5, 0, Math.PI * 2, true); // 右眼
       this.ctx.stroke();
     },
     // 绘制线条
@@ -125,13 +126,57 @@ export default {
       this.ctx.clearRect(0, 0, this.ctxWidth, this.ctxHeight);
       this.ctx.fillStyle = this.line;
 
-      const rectWidth = this.ctxWidth / this.size;
+      const rectWidth = 200 / this.size;
       const cw = rectWidth * 0.6;
       const coordinate = this.getPoints();
-      for (let i = 0; i < this.size; i++) {
-        const rectHeight = (points[i] / 256) * this.ctxHeight; //音频数据最大值256
+      for (let i = 0; i <= this.size; i++) {
+        const rectHeight = (points[i] / 256) * 150; //音频数据最大值256
         // 绘制矩形条（x,y,width,height）; rectWidth*0.6使矩形之间有间隙
-        this.ctx.fillRect(coordinate[i].x, coordinate[i].y, cw, rectHeight);
+        this.ctx.beginPath();
+        const moveTox = coordinate[i].x + this.offSet;
+        const moveToy = Number(coordinate[i].y) + this.offSet;
+        this.ctx.moveTo(moveTox, moveToy);
+        let lineTox;
+        let lineToy;
+        const Rx = this.arcX + this.offSet;
+        const Ry = this.arcY + this.offSet;
+        if (coordinate[i].x > this.arcR) {
+          lineTox =
+            ((this.arcR + rectHeight) / this.arcR) * (moveTox - Rx) + Rx;
+        }
+        if (Number(coordinate[i].y) > this.arcR) {
+          lineToy =
+            ((this.arcR + rectHeight) / this.arcR) * (moveToy - Ry) + Ry;
+        }
+        if (coordinate[i].x < this.arcR) {
+          lineTox =
+            Rx - ((this.arcR + rectHeight) / this.arcR) * (Rx - moveTox);
+        }
+        if (Number(coordinate[i].y) < this.arcR) {
+          lineToy =
+            Ry - ((this.arcR + rectHeight) / this.arcR) * (Ry - moveToy);
+        }
+        if (coordinate[i].x === this.arcR) {
+          lineTox = Rx;
+          if (Number(coordinate[i].y) < this.arcR) {
+            lineToy = moveToy - rectHeight;
+          } else {
+            lineToy = Ry + this.arcR + rectHeight;
+          }
+        }
+        if (Number(coordinate[i].y) === this.arcR) {
+          lineToy = Ry;
+          if (coordinate[i].x < this.arcR) {
+            lineTox = moveTox - rectHeight;
+          } else {
+            lineTox = Rx + this.arcR + rectHeight;
+          }
+        }
+        this.ctx.lineTo(lineTox, lineToy);
+        this.ctx.lineWidth = 5;
+        //Line Color 线条/直线颜色
+        this.ctx.strokeStyle = this.line; //设置或返回用于笔触的颜色、渐变
+        this.ctx.stroke();
       }
     },
     initCanvas() {
@@ -192,6 +237,7 @@ export default {
     getAnalyser() {
       this.analyserNode.getByteFrequencyData(this.analyserData); // 将音频频域数据复制到传入的Uint8Array数组
       this.drawAudio(this.analyserData);
+      this.drawSmileFace();
       requestAnimationFrame(this.getAnalyser);
     },
     // 播放音频数据
