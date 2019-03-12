@@ -80,7 +80,8 @@ export default {
     getPoints() {
       const points = [];
       for (let i = 0; i <= this.size / 2; i = i + 1) {
-        const x = i * 2 * ((2 * this.arcR) / this.size);
+        // const x = i * 2 * ((2 * this.arcR) / this.size);
+        const x = this.arcR - Math.cos(2 * Math.PI * i/this.size) * this.arcR;
         const y1 = (
           this.arcY -
           Math.sqrt(Math.pow(this.arcR, 2) - Math.pow(x - this.arcX, 2))
@@ -89,15 +90,15 @@ export default {
           Math.sqrt(Math.pow(this.arcR, 2) - Math.pow(x - this.arcX, 2)) +
           this.arcY
         ).toFixed(2);
-        const arc1 = Math.asin(x * (Math.sin(90) / this.arcR));
-        const arc2 = Math.asin(x * (Math.sin(90) / this.arcR));
+        const arc1 = Math.asin(x * (Math.sin(Math.PI/2) / this.arcR));
+        const arc2 = Math.asin(x * (Math.sin(Math.PI/2) / this.arcR));
         points.push({ x, y: y1 }, { x, y: y2 });
       }
       return points;
     },
     // 获取线段终点
     getLineTo(angle, R) {
-      const lineToX = Math.sin(angle) * (R / Math.sin(90));
+      const lineToX = Math.sin(angle) * (R / Math.sin(Math.PI/2));
       const lineToY = Math.sqrt(Math.pow(R, 2) - Math.pow(lineToX, 2));
       return { lineToX, lineToY };
     },
