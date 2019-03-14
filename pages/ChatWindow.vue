@@ -1,21 +1,7 @@
 <template>
   <div class="chat-window">
-    <div class="chat-window-head">
-      <span class="chat-window-head-back" v-on:click="goBack()">Back</span>
-      <span class="chat-window-head-name">{{name}}</span>
-    </div>
     <div class="chat-window-content">
-      <div class="chat-window-content-bubble chat-window-content-bubble-right">
-        <chat-bubble :direction="'right'">你想获得真正的力量吗</chat-bubble>
-      </div>
-      <div class="chat-window-content-bubble chat-window-content-bubble-left">
-        <chat-bubble :direction="'left'">来选一首歌吧</chat-bubble>
-      </div>
-      <div class="chat-window-content-bubble chat-window-content-bubble-right">
-        <chat-bubble :direction="'left'">
-          <canvas id="smile-face" ref="smile_face"></canvas>
-        </chat-bubble>
-      </div>
+      <canvas id="smile-face" ref="smile_face"></canvas>
     </div>
     <div class="chat-window-handle">
       <div class="chat-window-handle-fun" v-on:click="playAudioBuffer()">+</div>
@@ -51,13 +37,13 @@ export default {
       analyserNode: null, // 音频可视化节点
       analyserData: null, // 音频可视化数据
       ctx: null, // 画布对象
-      ctxWidth: 400,
-      ctxHeight: 400,
-      size: 60,
+      ctxWidth: window.innerWidth,
+      ctxHeight: window.innerHeight,
+      size: 40,
       arcX: 60,
       arcY: 60,
       arcR: 60,
-      offSet: 100
+      offSet: 60
     };
   },
   created() {
@@ -70,7 +56,6 @@ export default {
     this.initCanvas();
     this.drawLine();
     this.drawSmileFace();
-    console.log(this.getPoints());
   },
   methods: {
     goBack() {
@@ -81,7 +66,8 @@ export default {
       const points = [];
       for (let i = 0; i <= this.size / 2; i = i + 1) {
         // const x = i * 2 * ((2 * this.arcR) / this.size);
-        const x = this.arcR - Math.cos(2 * Math.PI * i/this.size) * this.arcR;
+        const x =
+          this.arcR - Math.cos((2 * Math.PI * i) / this.size) * this.arcR;
         const y1 = (
           this.arcY -
           Math.sqrt(Math.pow(this.arcR, 2) - Math.pow(x - this.arcX, 2))
@@ -90,28 +76,65 @@ export default {
           Math.sqrt(Math.pow(this.arcR, 2) - Math.pow(x - this.arcX, 2)) +
           this.arcY
         ).toFixed(2);
-        const arc1 = Math.asin(x * (Math.sin(Math.PI/2) / this.arcR));
-        const arc2 = Math.asin(x * (Math.sin(Math.PI/2) / this.arcR));
+        const arc1 = Math.asin(x * (Math.sin(Math.PI / 2) / this.arcR));
+        const arc2 = Math.asin(x * (Math.sin(Math.PI / 2) / this.arcR));
         points.push({ x, y: y1 }, { x, y: y2 });
       }
       return points;
     },
     // 获取线段终点
     getLineTo(angle, R) {
-      const lineToX = Math.sin(angle) * (R / Math.sin(Math.PI/2));
+      const lineToX = Math.sin(angle) * (R / Math.sin(Math.PI / 2));
       const lineToY = Math.sqrt(Math.pow(R, 2) - Math.pow(lineToX, 2));
       return { lineToX, lineToY };
     },
     drawSmileFace() {
       if (!this.ctx) return;
       this.ctx.beginPath();
-      this.ctx.arc(this.arcX + this.offSet, this.arcY + this.offSet, this.arcR, 0, Math.PI * 2, true); // 绘制
-      this.ctx.moveTo(2 * this.arcX + this.offSet - 15, this.arcX + this.offSet);
-      this.ctx.arc(this.arcR + this.offSet, this.arcR + this.offSet, this.arcR - 15, 0, Math.PI, false); // 口(顺时针)
-      this.ctx.moveTo(this.arcR + this.offSet -5, this.arcR + this.offSet - 15);
-      this.ctx.arc(this.arcR + this.offSet - 10, this.arcR + this.offSet - 15, 5, 0, Math.PI * 2, true); // 左眼
-      this.ctx.moveTo(this.arcR + this.offSet + 15, this.arcR + this.offSet -15);
-      this.ctx.arc(this.arcR + this.offSet + 10,  this.arcR + this.offSet - 15, 5, 0, Math.PI * 2, true); // 右眼
+      this.ctx.arc(
+        this.arcX + this.offSet,
+        this.arcY + this.offSet,
+        this.arcR,
+        0,
+        Math.PI * 2,
+        true
+      ); // 绘制
+      this.ctx.moveTo(
+        2 * this.arcX + this.offSet - 15,
+        this.arcX + this.offSet
+      );
+      this.ctx.arc(
+        this.arcR + this.offSet,
+        this.arcR + this.offSet,
+        this.arcR - 15,
+        0,
+        Math.PI,
+        false
+      ); // 口(顺时针)
+      this.ctx.moveTo(
+        this.arcR + this.offSet - 5,
+        this.arcR + this.offSet - 15
+      );
+      this.ctx.arc(
+        this.arcR + this.offSet - 10,
+        this.arcR + this.offSet - 15,
+        5,
+        0,
+        Math.PI,
+        true
+      ); // 左眼
+      this.ctx.moveTo(
+        this.arcR + this.offSet + 15,
+        this.arcR + this.offSet - 15
+      );
+      this.ctx.arc(
+        this.arcR + this.offSet + 10,
+        this.arcR + this.offSet - 15,
+        5,
+        0,
+        Math.PI,
+        true
+      ); // 右眼
       this.ctx.stroke();
     },
     // 绘制线条
@@ -131,7 +154,7 @@ export default {
       const cw = rectWidth * 0.6;
       const coordinate = this.getPoints();
       for (let i = 0; i <= this.size; i++) {
-        const rectHeight = (points[i] / 256) * 150; //音频数据最大值256
+        const rectHeight = (points[i] / 256) * 60; //音频数据最大值256
         // 绘制矩形条（x,y,width,height）; rectWidth*0.6使矩形之间有间隙
         this.ctx.beginPath();
         const moveTox = coordinate[i].x + this.offSet;
@@ -285,7 +308,7 @@ export default {
 
   &-content {
     position: absolute;
-    top: 4rem;
+    top: 0;
     bottom: 4rem;
     width: 100%;
     background-color: #fff1f0;
