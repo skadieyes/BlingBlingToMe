@@ -3,12 +3,21 @@
     <div class="chat-window-content">
       <canvas id="smile-face" ref="smile_face"></canvas>
     </div>
+    <div class="chat-window-title">你知道什么是音频可视化么</div>
+    <div class="chat-window-songs">
+      <div class="chat-window-songs-area">
+        <span class="chat-window-songs-area-label">选择音乐</span>
+        <input
+          class="chat-window-songs-area-input"
+          id="loadfile"
+          type="file"
+          v-on:change="getAudioFile"
+        >
+      </div>
+    </div>
     <div class="chat-window-handle">
       <div class="chat-window-handle-fun" v-on:click="playAudioBuffer()">+</div>
       <span class="chat-window-handle-circle-left"></span>
-      <div class="chat-window-handle-input">
-        <input id="loadfile" type="file" v-on:change="getAudioFile">
-      </div>
       <span class="chat-window-handle-circle-right"></span>
       <span class="chat-window-handle-send">></span>
     </div>
@@ -224,17 +233,26 @@ export default {
         });
     },
     creatAudio() {
-      this.audioCtx = new AudioContext();
-      this.AudioBufferSourceNode = this.audioCtx.createBufferSource();
-      this.audioCtx.resume().then(() => {
-        console.log("Playback resumed successfully");
+      return new Promise(resolve => {
+        this.audioCtx = new AudioContext();
+        this.AudioBufferSourceNode = this.audioCtx.createBufferSource();
+        this.audioCtx.resume().then(() => {
+          resolve();
+        });
       });
     },
     // 获取音频文件
     getAudioFile(e) {
       const { files } = e.target;
       const file = files[0];
-      this.decodeAudioToGetBuffer(file);
+      if (file.type !== "audio/mp3") {
+        return;
+      } else {
+        // 先创建上下文环境
+        this.creatAudio().then(() => {
+          this.decodeAudioToGetBuffer(file);
+        });
+      }
     },
     // 解码音频冰获取ArrayBuffer类型的数据
     decodeAudioToGetBuffer(file) {
@@ -303,6 +321,48 @@ export default {
       color: #fff;
       font-size: 1.1rem;
       font-weight: 800;
+    }
+  }
+
+  &-title {
+    font-size: 1rem;
+    color: #333;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-20%);
+    top: 4rem;
+  }
+
+  &-songs {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-20%);
+    top: 6rem;
+
+    &-area {
+      display: flex;
+      padding-top: 1rem;
+      background: #ffc400;
+      color: #fff;
+      width: 90px;
+      text-align: center;
+      font-size: 16px;
+      line-height: 32px;
+      border-radius: 4px;
+      cursor: pointer;
+      position: relative;
+
+      &-input {
+        opacity: 0;
+      }
+
+      &-label {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+      }
     }
   }
 
