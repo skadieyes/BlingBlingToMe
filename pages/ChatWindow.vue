@@ -3,23 +3,30 @@
     <div class="chat-window-content">
       <canvas id="smile-face" ref="smile_face"></canvas>
     </div>
-    <div class="chat-window-title">你知道什么是音频可视化么</div>
-    <div class="chat-window-songs">
-      <div class="chat-window-songs-area">
-        <span class="chat-window-songs-area-label">选择音乐</span>
-        <input
-          class="chat-window-songs-area-input"
-          id="loadfile"
-          type="file"
-          v-on:change="getAudioFile"
-        >
+    <div class="chat-window-title">play songs
+      <div class="chat-window-songs">
+        <div class="chat-window-songs-area">
+          <span class="chat-window-songs-area-label">选择音乐</span>
+          <input
+            class="chat-window-songs-area-input"
+            id="loadfile"
+            type="file"
+            v-on:change="getAudioFile"
+          >
+        </div>
+        <div class="chat-window-songs-labels">{{labels}}</div>
+        <div class="chat-window-songs-play">
+          <button
+            class="chat-window-songs-play-btn"
+            v-if="buffer && !playMusic"
+            v-on:click="playAudioBuffer()"
+          >播放</button>
+        </div>
       </div>
     </div>
-    <div class="chat-window-handle">
-      <div class="chat-window-handle-fun" v-on:click="playAudioBuffer()">+</div>
-      <span class="chat-window-handle-circle-left"></span>
-      <span class="chat-window-handle-circle-right"></span>
-      <span class="chat-window-handle-send">></span>
+
+    <div class="chat-window-wave">
+      <canvas id="wave" ref="wave"></canvas>
     </div>
   </div>
 </template>
@@ -46,13 +53,15 @@ export default {
       analyserNode: null, // 音频可视化节点
       analyserData: null, // 音频可视化数据
       ctx: null, // 画布对象
-      ctxWidth: window.innerWidth,
-      ctxHeight: window.innerHeight,
+      waveCtx: null, // 波浪的画布
+      ctxWidth: 500,
+      ctxHeight: 500,
       size: 40,
-      arcX: 60,
-      arcY: 60,
-      arcR: 60,
-      offSet: 60
+      arcX: 120,
+      arcY: 120,
+      arcR: 120,
+      offSet: 60,
+      playMusic: false // 是否正在播放音乐
     };
   },
   created() {
@@ -146,6 +155,13 @@ export default {
       ); // 右眼
       this.ctx.stroke();
     },
+    /*     drawWave() {
+      this.waveCtx.beginPath();
+      this.waveCtx.moveTo(20, 170);
+      this.waveCtx.quadraticCurveTo(130, 40, 210, 170);
+      this.waveCtx.strokeStyle = "blue";
+      this.waveCtx.stroke();
+    }, */
     // 绘制线条
     drawLine() {
       // 设置渐变色
@@ -219,6 +235,13 @@ export default {
       if (!element.getContext) return;
       this.ctx = element.getContext("2d");
     },
+    initWave() {
+      const element = this.$refs.wave;
+      element.width = this.waveCtxWidth;
+      element.height = this.waveCtxHeight;
+      if (!element.getContext) return;
+      this.waveCtx = element.getContext("2d");
+    },
     getContent() {
       this.$http
         .get(`/static/db/${this.api}.json`)
@@ -235,6 +258,11 @@ export default {
     creatAudio() {
       return new Promise(resolve => {
         this.audioCtx = new AudioContext();
+        this.buffer = null;
+        if (this.playMusic) {
+          this.AudioBufferSourceNode.stop();
+          this.playMusic = false;
+        }
         this.AudioBufferSourceNode = this.audioCtx.createBufferSource();
         this.audioCtx.resume().then(() => {
           resolve();
@@ -246,8 +274,11 @@ export default {
       const { files } = e.target;
       const file = files[0];
       if (file.type !== "audio/mp3") {
+        this.labels = "你选的不是mp3诶";
         return;
       } else {
+        const { name } = file;
+        this.labels = name;
         // 先创建上下文环境
         this.creatAudio().then(() => {
           this.decodeAudioToGetBuffer(file);
@@ -277,6 +308,7 @@ export default {
     },
     // 开始进行音频数据分析
     getAnalyser() {
+      if (!this.playMusic) return;
       this.analyserNode.getByteFrequencyData(this.analyserData); // 将音频频域数据复制到传入的Uint8Array数组
       this.drawAudio(this.analyserData);
       this.drawSmileFace();
@@ -284,6 +316,7 @@ export default {
     },
     // 播放音频数据
     playAudioBuffer() {
+      this.playMusic = true;
       this.initAnalyserNode();
       this.getAnalyser();
       this.AudioBufferSourceNode.buffer = this.buffer; // AudioBuffer数据赋值给buffer属性
@@ -298,31 +331,10 @@ export default {
 
 <style lang="stylus" scoped>
 .chat-window {
-  &-head {
-    height: 4rem;
-    font-size: 1rem;
-    line-height: 4rem;
-    background: linear-gradient(90deg, #ff85c0, #d3adf7);
-    color: #fff;
-    font-family: Helvetica;
-    box-shadow: 2px 2px 3px #aaaaaa;
-    z-index: 10;
-    position: absolute;
-    width: 100%;
-    box-shadow: 0 2px 25px #ffadd2;
-    text-align: left;
-    padding-left: 1rem;
-    position: relative;
-
-    &-name {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #fff;
-      font-size: 1.1rem;
-      font-weight: 800;
-    }
-  }
+  position: absolute;
+  top: 0;
+  width: 100%;
+  background: linear-gradient(#f48fb1, #69c0ff);
 
   &-title {
     font-size: 1rem;
@@ -331,13 +343,13 @@ export default {
     left: 50%;
     transform: translateX(-20%);
     top: 4rem;
+    font-size: 32px;
   }
 
   &-songs {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-20%);
-    top: 6rem;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
 
     &-area {
       display: flex;
@@ -364,16 +376,34 @@ export default {
         width: 100%;
       }
     }
+
+    &-play {
+      &-btn {
+        display: flex;
+        margin-top: 10px;
+        background: #5c6bc0;
+        color: #fff;
+        width: 90px;
+        font-size: 16px;
+        line-height: 32px;
+        border-radius: 4px;
+        cursor: pointer;
+        position: relative;
+        justify-content: center;
+      }
+    }
+
+    &-labels {
+      margin: 10px 0;
+      font-size: 10px;
+    padding-left: 30px;
+    }
   }
 
   &-content {
-    position: absolute;
-    top: 0;
-    bottom: 4rem;
-    width: 100%;
-    background-color: #fff1f0;
     padding: 1rem 0;
-    overflow-y: auto;
+    display: flex;
+    padding-left: 30px;
 
     &-bubble {
       padding: 0 1rem 1rem;
@@ -386,6 +416,11 @@ export default {
     &-bubble-left {
       text-align: left;
     }
+  }
+
+  &-bottom {
+    position: absolute;
+    bottom: 0;
   }
 
   &-handle {
