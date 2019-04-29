@@ -76,7 +76,6 @@ export default {
   created() {
     const { api } = this.$router.history.current.query;
     this.api = api;
-    this.getContent();
     this.creatAudio();
   },
   mounted() {
@@ -253,19 +252,6 @@ export default {
       element.height = this.waveCtxHeight;
       if (!element.getContext) return;
       this.waveCtx = element.getContext("2d");
-    },
-    getContent() {
-      this.$http
-        .get(`/static/db/${this.api}.json`)
-        .then(({ body }) => {
-          const { name, describe, action } = body;
-          this.name = name;
-          this.describe = describe;
-          this.action = action;
-        })
-        .catch(error => {
-          console.log(error);
-        });
     },
     creatAudio() {
       return new Promise(resolve => {
