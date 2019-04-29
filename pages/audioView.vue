@@ -1,32 +1,40 @@
 <template>
-  <div class="chat-window">
-    <div class="chat-window-content">
+  <div class="audio">
+    <div class="audio-content">
       <canvas id="smile-face" ref="smile_face"></canvas>
     </div>
-    <div class="chat-window-title">play songs
-      <div class="chat-window-songs">
-        <div class="chat-window-songs-area">
-          <span class="chat-window-songs-area-label">选择音乐</span>
+    <div class="audio-title">
+      play songs
+      <span class="audio-songs-labels">{{labels}}</span>
+      <div class="audio-songs">
+        <div class="audio-songs-area">
+          <span class="audio-songs-area-label">select mp3</span>
           <input
-            class="chat-window-songs-area-input"
+            class="audio-songs-area-input"
             id="loadfile"
             type="file"
             v-on:change="getAudioFile"
           >
         </div>
-        <div class="chat-window-songs-labels">{{labels}}</div>
-        <div class="chat-window-songs-play">
+        <div class="audio-songs-play">
           <button
-            class="chat-window-songs-play-btn"
+            class="audio-songs-play-btn"
             v-if="buffer && !playMusic"
             v-on:click="playAudioBuffer()"
-          >播放</button>
+          >play</button>
+        </div>
+        <div>
         </div>
       </div>
+     <div class="audio-name">
+        <div>音频可视化/Audio visualization</div>
+        <div>选择一首mp3, 然后播放它吧</div>
+        <div>Choosing a songs and playing it, you will see the sunshine</div>
     </div>
-
-    <div class="chat-window-wave">
-      <canvas id="wave" ref="wave"></canvas>
+    </div>
+    <div class="audio-github" @click="openGit">
+        <img src="static/img/github.png" />
+        <div class="audio-github-name">skadyeyes</div>
     </div>
   </div>
 </template>
@@ -35,7 +43,7 @@
 import ChatBubble from "@/components/Chat/ChatBubble";
 
 export default {
-  name: "chat-window",
+  name: "audio",
   components: { ChatBubble },
   computed: {},
   data() {
@@ -61,7 +69,8 @@ export default {
       arcY: 120,
       arcR: 120,
       offSet: 60,
-      playMusic: false // 是否正在播放音乐
+      playMusic: false, // 是否正在播放音乐
+      labels: null,
     };
   },
   created() {
@@ -105,6 +114,9 @@ export default {
       const lineToX = Math.sin(angle) * (R / Math.sin(Math.PI / 2));
       const lineToY = Math.sqrt(Math.pow(R, 2) - Math.pow(lineToX, 2));
       return { lineToX, lineToY };
+    },
+    openGit(){
+        window.open('https://github.com/skadieyes/BlingBlingToMe')
     },
     drawSmileFace() {
       if (!this.ctx) return;
@@ -166,9 +178,9 @@ export default {
     drawLine() {
       // 设置渐变色
       this.line = this.ctx.createLinearGradient(0, 0, 0, this.ctxHeight); //线性渐变
-      this.line.addColorStop(0, "red");
-      this.line.addColorStop(0.5, "orange");
-      this.line.addColorStop(1, "green");
+      this.line.addColorStop(0, "#f5222d");
+      this.line.addColorStop(0.5, "#ffbb96");
+      this.line.addColorStop(1, "#fff566");
     },
     // 绘制音频可视化
     drawAudio(points) {
@@ -330,7 +342,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.chat-window {
+.audio {
   position: absolute;
   top: 0;
   width: 100%;
@@ -338,7 +350,7 @@ export default {
 
   &-title {
     font-size: 1rem;
-    color: #333;
+    color: #fff;
     position: absolute;
     left: 50%;
     transform: translateX(-20%);
@@ -350,13 +362,15 @@ export default {
     padding-top: 20px;
     display: flex;
     flex-direction: column;
+    justify-content: center;
 
     &-area {
       display: flex;
       padding-top: 1rem;
-      background: #ffc400;
+      background: linear-gradient(90deg, #ff85c0, #d3adf7);
+      box-shadow: 1px 1px 5px #888;
       color: #fff;
-      width: 90px;
+      width: 120px;
       text-align: center;
       font-size: 16px;
       line-height: 32px;
@@ -381,9 +395,12 @@ export default {
       &-btn {
         display: flex;
         margin-top: 10px;
-        background: #5c6bc0;
+        border: none;
+        background: linear-gradient(90deg, #ff85c0, #ffe58f);
+        box-shadow: 1px 1px 5px #888;
+        width: 120px;
         color: #fff;
-        width: 90px;
+        width: 120px;
         font-size: 16px;
         line-height: 32px;
         border-radius: 4px;
@@ -395,8 +412,7 @@ export default {
 
     &-labels {
       margin: 10px 0;
-      font-size: 10px;
-    padding-left: 30px;
+      font-size: 14px;
     }
   }
 
@@ -486,6 +502,27 @@ export default {
       justify-content: center;
       color: #f759ab;
     }
+  }
+  &-name{
+    padding-top: 1rem;
+    font-size: 1rem;
+    text-align: left;
+    width: 30rem;
+    position: absolute;
+    line-height: 2rem;
+    opacity: 0.8;
+  }
+  &-github{
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      cursor: pointer;
+      img{
+        width: 3rem;
+      }
+      &-name{
+          color: #e6e6e6;
+      }
   }
 }
 </style>
