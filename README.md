@@ -7,7 +7,7 @@
 >  :heart:  [LiveDemo](https://skadieyes.github.io/blingblingBuild/index.html#/audio)
 
 # 截图
-![alt text](https://skadieyes.github.io/blingblingBuild/BlingBlingToMe/assets/projectImg.jpg "Three.js")
+![alt text](https://skadieyes.github.io/BlingBlingToMe/assets/projectImg.jpg "Three.js")
 
 # 什么是音频可视化
 > 
