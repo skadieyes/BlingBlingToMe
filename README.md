@@ -5,7 +5,9 @@
 >  it's just a littel ting about the Audio visualization
 
 >  :heart:  [LiveDemo](https://skadieyes.github.io/blingblingBuild/index.html#/audio)
->  [pic](https://skadieyes.github.io/blingblingBuild/BlingBlingToMe/assets/projectImg.jpg)
+
+# 截图
+![alt text](https://skadieyes.github.io/blingblingBuild/BlingBlingToMe/assets/projectImg.jpg "Three.js")
 
 # 什么是音频可视化
 > 
