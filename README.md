@@ -4,8 +4,8 @@
 >  这是一个音频可视化的小玩意儿
 >  it's just a littel ting about the Audio visualization
 
-> [pic](https://skadieyes.github.io/blingblingBuild/BlingBlingToMe/assets/projectImg.jpg)
-> ![url](https://skadieyes.github.io/blingblingBuild/index.html#/audio) 点击访问
+>  :heart:  [LiveDemo](https://skadieyes.github.io/blingblingBuild/index.html#/audio)
+>  [pic](https://skadieyes.github.io/blingblingBuild/BlingBlingToMe/assets/projectImg.jpg)
 
 # 什么是音频可视化
 > 
