@@ -1,11 +1,15 @@
 # blingbling
 
->  Your eyes bling bling
-
 # what this ?
-> 想和Tony老师聊天么? 想让Tony老师教你人生的道理吗？
-> just kidding, 这是一个lavas项目的小demo
-> 计划内容会是前端各种玩法化身为和你聊天的robot, maybe intresting? let's see it
+>  这是一个音频可视化的小玩意儿
+>  it's just a littel ting about the Audio visualization
+
+> [pic](https://skadieyes.github.io/blingblingBuild/BlingBlingToMe/assets/projectImg.jpg)
+> ![url](https://skadieyes.github.io/blingblingBuild/index.html#/audio) 点击访问
+
+# 什么是音频可视化
+> 
+
 ## npm 相关命令
 
 ``` bash
