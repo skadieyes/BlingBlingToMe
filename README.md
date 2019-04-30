@@ -7,7 +7,7 @@
 >  :heart:  [LiveDemo](https://skadieyes.github.io/blingblingBuild/index.html#/audio)
 
 ## 截图
-![alt text](https://skadieyes.github.io/BlingBlingToMe/assets/projectImg.jpg "Three.js")
+![alt text](https://skadieyes.github.io/BlingBlingToMe/assets/projectImg.png "截图")
 
 ## 什么是音频可视化/the means of AudioVisualization
 使用h5提供的Web Audio API，获取音频把音频解码，然后获取频率及时间域分析的信息，使用canvas将其绘制和表达出来
